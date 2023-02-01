@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 
 from reviews.models import Category, Genre
-from .serializers import CategorySerializer
+from .serializers import CategorySerializer, GenreSerializer
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
