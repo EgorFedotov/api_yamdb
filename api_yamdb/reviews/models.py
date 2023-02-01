@@ -24,5 +24,8 @@ class Title(models.Model):
     genre = models.ForeignKey(
         Genre,
         on_delete=models.DO_NOTHING,
-        related_name='titles'
+        related_name='titles',
+        null=True
     )
+
+
