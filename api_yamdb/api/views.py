@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 
-from .models import Category
+from reviews.models import Category
 from .serializers import CategorySerializer
 
 
