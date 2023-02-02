@@ -24,7 +24,7 @@ class Title(models.Model):
     description = models.TextField()
     category = models.ForeignKey(
         Category,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.SET_NULL,
         related_name='titles',
     )
 
@@ -32,16 +32,16 @@ class Title(models.Model):
 class GenreTitle(models.Model):
     genre = models.ForeignKey(
         Genre,
-        null=False,
+        null=True,
         related_name='titles',
-        on_delete=models.DO_NOTHING
+        on_delete=models.SET_NULL
     )
 
     title = models.ForeignKey(
         Title,
-        null=False,
+        null=True,
         related_name='genres',
-        on_delete=models.DO_NOTHING
+        on_delete=models.SET_NULL
     )
 
     class Meta:
