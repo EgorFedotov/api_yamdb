@@ -3,16 +3,16 @@ from reviews.models import (Category,
                             Genre,
                             GenreTitle,
                             Review,
-                            Title)
+                            Title,
+                            User)
 
 
-#TODO:
 model_by_filename = {
     'category': Category,
     'genre': Genre,
     'titles': Title,
     'genre_title': GenreTitle,
-    #'users': User,
+    'users': User,
     'review': Review,
     'comments': Comment,
 }
