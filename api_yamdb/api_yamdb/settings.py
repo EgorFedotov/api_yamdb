@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'api',
+    'core',
     'reviews',
 ]
 
@@ -102,7 +103,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 
 STATIC_URL = '/static/'
-
+STATIC_DATA = (BASE_DIR / 'static/data/')
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
