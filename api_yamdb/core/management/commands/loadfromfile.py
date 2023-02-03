@@ -5,6 +5,7 @@ from typing import Any, List
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.db.models import ForeignKey
 
 from ._settings import model_by_filename
 
@@ -13,16 +14,19 @@ class Command(BaseCommand):
     help = 'Load data from csv files into database.'
 
     @staticmethod
-    def is_related(object: Any, field: Any) -> bool:
+    def is_related(model_object: Any, field_name: Any) -> bool:
         """Model field is related to foreign key."""
-        return not hasattr(object, field)
+        field = model_object._meta.get_field(field_name)
+        return field.is_relation
 
     @staticmethod
     def add_suffix_for_related(model: Any, keys: List[str]) -> None:
         """Add id suffix for all related fields."""
         instance = model()
-        for i, field in enumerate(keys):
-            if Command.is_related(instance, field):
+        for i, field_name in enumerate(keys):
+            if 'id' in field_name:
+                continue
+            if Command.is_related(instance, field_name):
                 keys[i] += "_id"
 
     def handle(self, *args, **options):

@@ -1,12 +1,18 @@
-from reviews.models import Category, Genre, Title, GenreTitle
+from reviews.models import (Category,
+                            Comment,
+                            Genre,
+                            GenreTitle,
+                            Review,
+                            Title)
+
 
 #TODO:
 model_by_filename = {
-    #'comments': Comment,
     'category': Category,
     'genre': Genre,
     'titles': Title,
     'genre_title': GenreTitle,
-    #'review': Review,
     #'users': User,
+    'review': Review,
+    'comments': Comment,
 }
