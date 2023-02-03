@@ -75,6 +75,7 @@ class Title(models.Model):
     description = models.TextField()
     category = models.ForeignKey(
         Category,
+        null=True,
         on_delete=models.SET_NULL,
         related_name='titles',
     )
