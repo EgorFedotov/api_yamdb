@@ -2,7 +2,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from reviews.models import Category, Genre, Title, Review
+
+from reviews.models import Category, Genre, Title, User, Review
+
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -33,6 +35,40 @@ class TitleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+
+class UserSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(required=True)
+
+    class Meta:
+        fields = '__all__'
+        model = User
+
+
+class UserEditSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = '__all__'
+        model = User
+        read_only_fields = ('role',)
+
+
+class RegisterDataSerializer(serializers.ModelSerializer):
+
+    def validate_username(self, value):
+        if value.lower() == 'me':
+            raise serializers.ValidationError('Username "me" is not valid')
+        return value
+
+    class Meta:
+        fields = '__all__'
+        model = User
+
+
+class TokenSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    confirmation_code = serializers.CharField()
+    
+    
 class ReviewSerializer(serializers.ModelSerializer):
     """Сериализатор для отзывов"""
     author = serializers.SlugRelatedField(
@@ -55,3 +91,4 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ('id', 'text', 'author', 'score', 'pub_date')
+
