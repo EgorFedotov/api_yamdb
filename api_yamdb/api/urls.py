@@ -20,7 +20,7 @@ router_v1.register(f'{V1_PATH}categories', CategoryViewSet)
 router_v1.register(f'{V1_PATH}genres', GenreViewSet)
 router_v1.register(f'{V1_PATH}titles', TitleViewSet)
 
-router_v1.register(r'users', UserViewSet)
+router_v1.register(f'{V1_PATH}users', UserViewSet)
 router_v1.register(
     r'titles/(?P<title_id>\d+)/reviews',
     ReviewViewSet,
