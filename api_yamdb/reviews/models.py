@@ -71,7 +71,7 @@ class Title(models.Model):
             MinValueValidator(600, 'Минимальное значение 600'),
         ],
     )
-    # rating = TODO: review.score 
+    # rating = TODO: review.score
     description = models.TextField()
     category = models.ForeignKey(
         Category,
