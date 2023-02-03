@@ -1,6 +1,5 @@
 from pathlib import Path
-import os
-from datetime import timedelta
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -11,7 +10,6 @@ SECRET_KEY = 'p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs'
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -106,6 +104,8 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 # аутентификация
 
 REST_FRAMEWORK = {
@@ -114,10 +114,6 @@ REST_FRAMEWORK = {
     ],
 }
 
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
-    "AUTH_HEADER_TYPES": ("Bearer",),
-}
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

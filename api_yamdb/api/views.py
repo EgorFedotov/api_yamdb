@@ -1,10 +1,16 @@
-from rest_framework import permissions, status, viewsets
+from rest_framework import permissions, status
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from reviews.models import User
-from .serializers import (RegisterDataSerializer, TokenSerializer,
+from reviews.models import Category, Genre, Title, User
+from .serializers import (CategorySerializer,
+                          GenreSerializer,
+                          TitleSerializer,
+                          RegisterDataSerializer,
+                          TokenSerializer,
                           UserSerializer)
+from .mixins import ListCreateDestroyViewSet
 
 
 @api_view(["POST"])
@@ -28,7 +34,7 @@ def get_jwt_token(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -47,3 +53,18 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+class CategoryViewSet(ListCreateDestroyViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+class GenreViewSet(ListCreateDestroyViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+
+
+class TitleViewSet(ModelViewSet):
+    serializer_class = TitleSerializer
+    queryset = Title.objects.all()
