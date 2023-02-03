@@ -57,3 +57,8 @@ class RegisterDataSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = User
+
+
+class TokenSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    confirmation_code = serializers.CharField()
