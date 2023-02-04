@@ -6,7 +6,6 @@ from rest_framework.exceptions import ValidationError
 from reviews.models import Category, Genre, Title, User, Review, Comment
 
 
-
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -33,7 +32,6 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Title
         fields = '__all__'
-
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -67,7 +65,7 @@ class RegisterDataSerializer(serializers.ModelSerializer):
 class TokenSerializer(serializers.Serializer):
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
-    
+
 
 class CommentsSerializer(serializers.ModelSerializer):
     """Сериализатор для модели"""
@@ -75,6 +73,7 @@ class CommentsSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='username',
     )
+
     class Meta:
         model = Comment
         fields = (
@@ -82,6 +81,7 @@ class CommentsSerializer(serializers.ModelSerializer):
             'text',
             'author',
             'pub_date',
+        )
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -106,5 +106,3 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ('id', 'text', 'author', 'score', 'pub_date')
-
-

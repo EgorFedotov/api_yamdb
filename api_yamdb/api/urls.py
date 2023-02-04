@@ -35,7 +35,6 @@ router_v1.register(
     basename='reviews')
 
 
-
 urlpatterns = [
     path('', include(router_v1.urls)),
     path(f'{V1_PATH}auth/signup/', register, name='register'),
