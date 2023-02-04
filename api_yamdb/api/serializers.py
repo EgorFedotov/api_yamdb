@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 from reviews.models import Category, Genre, Title, User
 
@@ -32,7 +33,12 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(required=True)
+    username = serializers.CharField(
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ],
+        required=True,
+    )
 
     class Meta:
         fields = '__all__'
@@ -48,6 +54,11 @@ class UserEditSerializer(serializers.ModelSerializer):
 
 
 class RegisterDataSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ]
+    )
 
     def validate_username(self, value):
         if value.lower() == 'me':
