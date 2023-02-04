@@ -1,18 +1,22 @@
 from django.contrib.auth.tokens import default_token_generator
+from django.shortcuts import get_object_or_404
+from django.db.models import Avg
+
 from rest_framework import permissions, status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from django.shortcuts import get_object_or_404
 
-from reviews.models import Category, Genre, Title, User
+
+from reviews.models import Category, Genre, Title, User, Review
 from .serializers import (CategorySerializer,
                           GenreSerializer,
                           TitleSerializer,
                           RegisterDataSerializer,
                           TokenSerializer,
-                          UserSerializer)
+                          UserSerializer,
+                          CommentsSerializer)
 from .mixins import ListCreateDestroyViewSet
 
 
@@ -80,4 +84,21 @@ class GenreViewSet(ListCreateDestroyViewSet):
 
 class TitleViewSet(ModelViewSet):
     serializer_class = TitleSerializer
-    queryset = Title.objects.all()
+    queryset = (
+        Title.objects.all().annotate(Avg('reviews_score'))
+    )
+
+
+class CommentViewSet(ModelViewSet):
+    """Вьюсет для комментариев"""
+    serializer_class = CommentsSerializer
+
+    def get_queryset(self):
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, id=review_id)
+        return review.comments.all()
+
+    def perform_create(self, serializer):
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, id=review_id)
+        serializer.save(author=self.request.user, review=review)
