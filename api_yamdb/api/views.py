@@ -2,7 +2,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
 
-from rest_framework import permissions, status
+from rest_framework import permissions, status, filters
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
@@ -18,9 +18,11 @@ from .serializers import (CategorySerializer,
                           RegisterDataSerializer,
                           TokenSerializer,
                           UserSerializer,
-                          UserEditSerializer,
                           CommentsSerializer,
-                          ReviewSerializer)
+                          ReviewSerializer,
+                          UserEditSerializer)
+
+
 from .mixins import ListCreateDestroyViewSet
 
 
@@ -89,17 +91,21 @@ class UserViewSet(ModelViewSet):
 class CategoryViewSet(ListCreateDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['=name',]
 
 
 class GenreViewSet(ListCreateDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['=name',]
 
 
 class TitleViewSet(ModelViewSet):
     serializer_class = TitleSerializer
     queryset = (
-        Title.objects.all().annotate(Avg('reviews_score'))
+        Title.objects.all()
     )
 
 
