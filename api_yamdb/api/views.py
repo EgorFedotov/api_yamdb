@@ -1,10 +1,11 @@
 from django.contrib.auth.tokens import default_token_generator
-from rest_framework import permissions, status
+from django.shortcuts import get_object_or_404
+
+from rest_framework import permissions, status, filters
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from django.shortcuts import get_object_or_404
 
 
 from reviews.models import Category, Genre, Title, User
@@ -85,11 +86,15 @@ class UserViewSet(ModelViewSet):
 class CategoryViewSet(ListCreateDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['=name',]
 
 
 class GenreViewSet(ListCreateDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['=name',]
 
 
 class TitleViewSet(ModelViewSet):
