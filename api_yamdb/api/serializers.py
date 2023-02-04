@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 
-from reviews.models import Category, Genre, Title, User, Review
+from reviews.models import Category, Genre, Title, User, Review, Comment
 
 
 
@@ -68,7 +68,22 @@ class TokenSerializer(serializers.Serializer):
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
     
-    
+
+class CommentsSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели"""
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username',
+    )
+    class Meta:
+        model = Comment
+        fields = (
+            'id',
+            'text',
+            'author',
+            'pub_date',
+
+
 class ReviewSerializer(serializers.ModelSerializer):
     """Сериализатор для отзывов"""
     author = serializers.SlugRelatedField(
@@ -91,4 +106,5 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ('id', 'text', 'author', 'score', 'pub_date')
+
 
