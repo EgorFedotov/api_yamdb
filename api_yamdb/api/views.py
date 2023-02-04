@@ -6,13 +6,16 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 from django.shortcuts import get_object_or_404
 
+
 from reviews.models import Category, Genre, Title, User
 from .serializers import (CategorySerializer,
                           GenreSerializer,
                           TitleSerializer,
                           RegisterDataSerializer,
                           TokenSerializer,
-                          UserSerializer)
+                          UserSerializer,
+                          ReviewSerializer)
+
 from .mixins import ListCreateDestroyViewSet
 
 
@@ -81,3 +84,16 @@ class GenreViewSet(ListCreateDestroyViewSet):
 class TitleViewSet(ModelViewSet):
     serializer_class = TitleSerializer
     queryset = Title.objects.all()
+
+
+class ReviewViewSet(ModelViewSet):
+    """Вьюсет для отзывов"""
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        return title.reviews.all()
+
+    def perform_create(self, serializer):
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        serializer.save(author=self.request.user, title=title)
