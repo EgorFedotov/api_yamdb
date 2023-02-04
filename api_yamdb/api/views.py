@@ -4,7 +4,7 @@ from django.db.models import Avg
 
 from rest_framework import permissions, status
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
@@ -18,10 +18,9 @@ from .serializers import (CategorySerializer,
                           RegisterDataSerializer,
                           TokenSerializer,
                           UserSerializer,
+                          UserEditSerializer,
                           CommentsSerializer,
                           ReviewSerializer)
-
-
 from .mixins import ListCreateDestroyViewSet
 
 
@@ -60,6 +59,16 @@ class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    @action(
+        methods=[
+            'get',
+            'patch',
+        ],
+        detail=False,
+        url_path='me',
+        permission_classes=[permissions.IsAuthenticated],
+        serializer_class=UserEditSerializer,
+    )
     def users_own_profile(self, request):
         user = request.user
         if request.method == 'GET':
