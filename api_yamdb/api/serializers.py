@@ -93,6 +93,7 @@ class CommentsSerializer(serializers.ModelSerializer):
             'text',
             'author',
             'pub_date',
+        )
 
 
 class ReviewSerializer(serializers.ModelSerializer):
