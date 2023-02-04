@@ -72,7 +72,6 @@ class Title(models.Model):
         ],
     )
     # rating = TODO: review.score
-
     description = models.TextField()
     category = models.ForeignKey(
         Category,
