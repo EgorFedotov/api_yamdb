@@ -1,14 +1,11 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
-from django.db.models import Avg
 
 from rest_framework import permissions, status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-
-
 
 from reviews.models import Category, Genre, Title, User, Review
 
@@ -89,9 +86,7 @@ class GenreViewSet(ListCreateDestroyViewSet):
 
 class TitleViewSet(ModelViewSet):
     serializer_class = TitleSerializer
-    queryset = (
-        Title.objects.all().annotate(Avg('reviews_score'))
-    )
+    queryset = Title.objects.all()
 
 
 class CommentViewSet(ModelViewSet):
@@ -108,7 +103,7 @@ class CommentViewSet(ModelViewSet):
         review = get_object_or_404(Review, id=review_id)
         serializer.save(author=self.request.user, review=review)
 
-    
+
 class ReviewViewSet(ModelViewSet):
     """Вьюсет для отзывов"""
     serializer_class = ReviewSerializer
@@ -120,4 +115,3 @@ class ReviewViewSet(ModelViewSet):
     def perform_create(self, serializer):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=title)
-
