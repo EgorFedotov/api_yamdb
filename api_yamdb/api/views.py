@@ -105,7 +105,7 @@ class GenreViewSet(ListCreateDestroyViewSet):
 class TitleViewSet(ModelViewSet):
     serializer_class = TitleSerializer
     queryset = (
-        Title.objects.all().annotate(Avg('reviews_score'))
+        Title.objects.all()
     )
 
 
