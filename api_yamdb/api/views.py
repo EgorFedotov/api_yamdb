@@ -9,14 +9,19 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
 
+
 from reviews.models import Category, Genre, Title, User, Review
+
 from .serializers import (CategorySerializer,
                           GenreSerializer,
                           TitleSerializer,
                           RegisterDataSerializer,
                           TokenSerializer,
                           UserSerializer,
-                          CommentsSerializer)
+                          CommentsSerializer,
+                          ReviewSerializer)
+
+
 from .mixins import ListCreateDestroyViewSet
 
 
@@ -102,3 +107,17 @@ class CommentViewSet(ModelViewSet):
         review_id = self.kwargs.get('review_id')
         review = get_object_or_404(Review, id=review_id)
         serializer.save(author=self.request.user, review=review)
+
+    
+class ReviewViewSet(ModelViewSet):
+    """Вьюсет для отзывов"""
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        return title.reviews.all()
+
+    def perform_create(self, serializer):
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        serializer.save(author=self.request.user, title=title)
+
