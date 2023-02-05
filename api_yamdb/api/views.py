@@ -1,10 +1,13 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404
 
 from rest_framework import permissions, status, filters
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework.exceptions import ValidationError
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
@@ -23,22 +26,26 @@ from .serializers import (CategorySerializer,
 
 from .mixins import AdminControlSlugViewSet, ListCreateDestroyViewSet
 
-from .permissions import (IsAdmin,
-                          IsAdminOrReadOnly,
-                          IsAdminModeratorOwnerOrReadOnly)
+from .permissions import AdminOnly, AdminOrReadOnly, IsAuthorOrModerOrAdmin
 
 
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
 def register(request):
     '''Регистрация пользователя.'''
+    if User.objects.filter(
+        username=request.data.get('username'),
+        email=request.data.get('email')
+    ).exists():
+        return Response(request.data, status=status.HTTP_200_OK)
     serializer = RegisterDataSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    serializer.save()
-    user = get_object_or_404(
-        User,
-        username=serializer.validated_data["username"]
-    )
+    try:
+        user, create = User.objects.get_or_create(
+            **serializer.validated_data
+        )
+    except IntegrityError:
+        raise ValidationError('Неверное имя пользователя или email')
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
         subject="YaMDb registration",
@@ -74,7 +81,7 @@ class UserViewSet(ModelViewSet):
     '''Вьюсет для юзера.'''
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (IsAdmin,)
+    permission_classes = (AdminOnly,)
     http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
     @action(
@@ -110,7 +117,8 @@ class CategoryViewSet(ListCreateDestroyViewSet):
     serializer_class = CategorySerializer
     # TODO: AdminControlSlugViewSet
     filter_backends = [filters.SearchFilter]
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (AdminOrReadOnly,)
+    pagination_class = LimitOffsetPagination
     search_fields = ['=name', ]
     lookup_field = 'slug'
 
@@ -126,13 +134,15 @@ class TitleViewSet(ModelViewSet):
     queryset = (
         Title.objects.all()
     )
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (AdminOrReadOnly,)
+    pagination_class = LimitOffsetPagination
 
 
 class CommentViewSet(ModelViewSet):
     """Вьюсет для комментариев"""
     serializer_class = CommentsSerializer
-    permission_classes = [IsAdminModeratorOwnerOrReadOnly]
+    permission_classes = (IsAuthorOrModerOrAdmin,)
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         review_id = self.kwargs.get('review_id')
@@ -148,7 +158,8 @@ class CommentViewSet(ModelViewSet):
 class ReviewViewSet(ModelViewSet):
     """Вьюсет для отзывов"""
     serializer_class = ReviewSerializer
-    permission_classes = [IsAdminModeratorOwnerOrReadOnly]
+    permission_classes = (IsAuthorOrModerOrAdmin,)
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
