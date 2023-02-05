@@ -6,19 +6,31 @@ from rest_framework.exceptions import ValidationError
 from reviews.models import Category, Genre, Title, User, Review, Comment
 
 
+class MetaSlug:
+    '''Общий мета класс для поиска по slug.'''
+    fields = ('name', 'slug',)
+    lookup_field = 'slug'
+    extra_kwargs = {
+        'url': {'lookup_field': 'slug'}
+    }
+
 
 class CategorySerializer(serializers.ModelSerializer):
-
+    '''Сериализатор для категорий.'''
+    # TODO: MetaSlug
     class Meta:
         model = Category
         fields = ('name', 'slug',)
+        lookup_field = 'slug'
+        extra_kwargs = {
+            'url': {'lookup_field': 'slug'}
+        }
 
 
 class GenreSerializer(serializers.ModelSerializer):
-
-    class Meta:
+    '''Сериализатор для жанров.'''
+    class Meta(MetaSlug):
         model = Genre
-        fields = ('name', 'slug',)
 
 
 class TitleSerializer(serializers.ModelSerializer):

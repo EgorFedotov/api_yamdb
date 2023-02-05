@@ -1,6 +1,5 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
-from django.db.models import Avg
 
 from rest_framework import permissions, status, filters
 from rest_framework.viewsets import ModelViewSet
@@ -23,7 +22,7 @@ from .serializers import (CategorySerializer,
                           UserEditSerializer)
 
 
-from .mixins import ListCreateDestroyViewSet
+from .mixins import AdminControlSlugViewSet, ListCreateDestroyViewSet
 
 
 @api_view(["POST"])
@@ -89,17 +88,20 @@ class UserViewSet(ModelViewSet):
 
 
 class CategoryViewSet(ListCreateDestroyViewSet):
+    '''Набор для категорий.'''
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    # TODO: AdminControlSlugViewSet
     filter_backends = [filters.SearchFilter]
-    search_fields = ['=name',]
+    search_fields = ['=name', ]
+    lookup_field = 'slug'
+    permission_classes = (permissions.IsAdminUser,)
 
 
-class GenreViewSet(ListCreateDestroyViewSet):
+class GenreViewSet(AdminControlSlugViewSet):
+    '''Набор для жанров.'''
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['=name',]
 
 
 class TitleViewSet(ModelViewSet):
