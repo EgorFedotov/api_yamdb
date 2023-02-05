@@ -24,6 +24,10 @@ from .serializers import (CategorySerializer,
 
 from .mixins import ListCreateDestroyViewSet
 
+from .permissions import (IsAdmin,
+                          IsAdminOrReadOnly,
+                          IsAdminModeratorOwnerOrReadOnly)
+
 
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
@@ -71,6 +75,7 @@ class UserViewSet(ModelViewSet):
     '''Вьюсет для юзера.'''
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = (IsAdmin,)
     http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
     @action(
@@ -104,6 +109,7 @@ class CategoryViewSet(ListCreateDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = [filters.SearchFilter]
+    permission_classes = (IsAdminOrReadOnly,)
     search_fields = ['=name',]
 
 
@@ -111,6 +117,7 @@ class GenreViewSet(ListCreateDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     filter_backends = [filters.SearchFilter]
+    permission_classes = (IsAdminOrReadOnly,)
     search_fields = ['=name',]
 
 
@@ -119,11 +126,13 @@ class TitleViewSet(ModelViewSet):
     queryset = (
         Title.objects.all()
     )
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 class CommentViewSet(ModelViewSet):
     """Вьюсет для комментариев"""
     serializer_class = CommentsSerializer
+    permission_classes = [IsAdminModeratorOwnerOrReadOnly]
 
     def get_queryset(self):
         review_id = self.kwargs.get('review_id')
@@ -139,6 +148,7 @@ class CommentViewSet(ModelViewSet):
 class ReviewViewSet(ModelViewSet):
     """Вьюсет для отзывов"""
     serializer_class = ReviewSerializer
+    permission_classes = [IsAdminModeratorOwnerOrReadOnly]
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
