@@ -56,6 +56,9 @@ class User(AbstractUser):
     def is_admin(self):
         return self.role == self.ADMIN
 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
+
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'

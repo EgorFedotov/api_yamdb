@@ -34,6 +34,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    '''Сериализатор для title.'''
     genres = GenreSerializer(many=True)
     category = CategorySerializer(many=False)
 
@@ -48,11 +49,17 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    '''Сериализатор для юзера.'''
     username = serializers.CharField(
         validators=[
             UniqueValidator(queryset=User.objects.all())
         ],
         required=True,
+    )
+    email = serializers.EmailField(
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ]
     )
 
     class Meta:
@@ -61,6 +68,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserEditSerializer(serializers.ModelSerializer):
+    '''Сериализатор для редактирования юзера.'''
 
     class Meta:
         fields = '__all__'
@@ -69,7 +77,13 @@ class UserEditSerializer(serializers.ModelSerializer):
 
 
 class RegisterDataSerializer(serializers.ModelSerializer):
+    '''Сериализатор регистрации.'''
     username = serializers.CharField(
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ]
+    )
+    email = serializers.EmailField(
         validators=[
             UniqueValidator(queryset=User.objects.all())
         ]
@@ -86,6 +100,7 @@ class RegisterDataSerializer(serializers.ModelSerializer):
 
 
 class TokenSerializer(serializers.Serializer):
+    '''Сериализатор для юзера'''
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
 
