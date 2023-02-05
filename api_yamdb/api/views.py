@@ -3,11 +3,12 @@ from django.core.mail import send_mail
 from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404
 
-from rest_framework import permissions, status, filters
+from rest_framework import permissions, status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import LimitOffsetPagination
+
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
@@ -24,7 +25,7 @@ from .serializers import (CategorySerializer,
                           UserEditSerializer)
 
 
-from .mixins import AdminControlSlugViewSet, ListCreateDestroyViewSet
+from .mixins import AdminControlSlugViewSet
 
 from .permissions import AdminOnly, AdminOrReadOnly, IsAuthorOrModerOrAdmin
 
@@ -111,16 +112,10 @@ class UserViewSet(ModelViewSet):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-class CategoryViewSet(ListCreateDestroyViewSet):
+class CategoryViewSet(AdminControlSlugViewSet):
     '''Набор для категорий.'''
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    # TODO: AdminControlSlugViewSet
-    filter_backends = [filters.SearchFilter]
-    permission_classes = (AdminOrReadOnly,)
-    pagination_class = LimitOffsetPagination
-    search_fields = ['=name', ]
-    lookup_field = 'slug'
 
 
 class GenreViewSet(AdminControlSlugViewSet):

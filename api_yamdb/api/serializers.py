@@ -17,14 +17,8 @@ class MetaSlug:
 
 class CategorySerializer(serializers.ModelSerializer):
     '''Сериализатор для категорий.'''
-    # TODO: MetaSlug
-    class Meta:
+    class Meta(MetaSlug):
         model = Category
-        fields = ('name', 'slug',)
-        lookup_field = 'slug'
-        extra_kwargs = {
-            'url': {'lookup_field': 'slug'}
-        }
 
 
 class GenreSerializer(serializers.ModelSerializer):
