@@ -71,6 +71,7 @@ class UserViewSet(ModelViewSet):
     '''Вьюсет для юзера.'''
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
     @action(
         methods=[
