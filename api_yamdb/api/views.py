@@ -88,6 +88,7 @@ class UserViewSet(ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     permission_classes = (AdminOnly,)
     http_method_names = ['get', 'post', 'head', 'patch', 'delete']
+    search_fields = ('username',)
 
     @action(
         methods=[
@@ -130,7 +131,6 @@ class TitleViewSet(ModelViewSet):
 
     permission_classes = (AdminOrReadOnly,)
     pagination_class = LimitOffsetPagination
-
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):

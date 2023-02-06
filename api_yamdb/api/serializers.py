@@ -61,18 +61,18 @@ class ListRetrieveTitleSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    '''Сериализатор для юзера.'''
 
     class Meta:
-        fields = '__all__'
+        fields = ("username", "email", "first_name",
+                  "last_name", "bio", "role")
         model = User
 
 
 class UserEditSerializer(serializers.ModelSerializer):
-    '''Сериализатор для редактирования юзера.'''
 
     class Meta:
-        fields = '__all__'
+        fields = ("username", "email", "first_name",
+                  "last_name", "bio", "role")
         model = User
         read_only_fields = ('role',)
 
@@ -81,7 +81,7 @@ class RegisterDataSerializer(serializers.ModelSerializer):
     '''Сериализатор регистрации.'''
 
     class Meta:
-        fields = ('username', 'email')
+        fields = ("username", "email")
         model = User
 
 
