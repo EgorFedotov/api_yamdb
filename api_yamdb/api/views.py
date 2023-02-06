@@ -3,7 +3,7 @@ from django.core.mail import send_mail
 from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404
 
-from rest_framework import permissions, status
+from rest_framework import permissions, status, filters
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.exceptions import ValidationError
