@@ -20,14 +20,13 @@ class User(AbstractUser):
         verbose_name='Имя пользователя',
         validators=(validate_username,),
         max_length=150,
-        null=True,
         unique=True
     )
 
     email = models.EmailField(
         verbose_name='Адрес электронной почты',
         max_length=254,
-        unique=True,
+        unique=True
     )
 
     first_name = models.TextField(
@@ -41,7 +40,7 @@ class User(AbstractUser):
         verbose_name='Фамилия',
         max_length=150,
         null=True,
-        blank=True
+        blank=True,
     )
 
     bio = models.TextField(
@@ -173,6 +172,15 @@ class Review(models.Model):
             MinValueValidator(1, 'Оценка не может быть меньше 1'),
         ],
     )
+
+    class Meta:
+        ordering = ('-pub_date',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=('title', 'author',),
+                name='unique_title_author'
+            )
+        ]
 
     def __str__(self):
         return f'Отзыв {self.text} оставлен на {self.title}'
