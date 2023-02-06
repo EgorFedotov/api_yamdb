@@ -4,6 +4,8 @@ from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
 
+from django_filters.rest_framework import DjangoFilterBackend
+
 from rest_framework import permissions, status, filters
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view, permission_classes, action
@@ -26,10 +28,8 @@ from .serializers import (CategorySerializer,
                           ReviewSerializer,
                           UserEditSerializer,
                           )
-
-
+from .filters import TitleFilter
 from .mixins import AdminControlSlugViewSet
-
 from .permissions import AdminOnly, AdminOrReadOnly, IsAuthorOrModerOrAdmin
 
 
@@ -131,6 +131,10 @@ class TitleViewSet(ModelViewSet):
 
     permission_classes = (AdminOrReadOnly,)
     pagination_class = LimitOffsetPagination
+
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('name', 'year', 'category', 'genre',)
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
