@@ -34,7 +34,6 @@ from .permissions import AdminOnly, AdminOrReadOnly, IsAuthorOrModerOrAdmin
 
 
 @api_view(["POST"])
-@permission_classes([permissions.AllowAny])
 def register(request):
     '''Регистрация пользователя.'''
     if User.objects.filter(
@@ -89,6 +88,7 @@ class UserViewSet(ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     permission_classes = (AdminOnly,)
     http_method_names = ['get', 'post', 'head', 'patch', 'delete']
+    search_fields = ('username',)
 
     @action(
         methods=[
@@ -132,7 +132,6 @@ class TitleViewSet(ModelViewSet):
     permission_classes = (AdminOrReadOnly,)
     pagination_class = LimitOffsetPagination
 
-
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return ListRetrieveTitleSerializer
@@ -140,7 +139,7 @@ class TitleViewSet(ModelViewSet):
 
 
 class CommentViewSet(ModelViewSet):
-    """Вьюсет для комментариев"""
+    """Вьюсет для комментариев."""
     serializer_class = CommentsSerializer
     permission_classes = (IsAuthorOrModerOrAdmin,)
     pagination_class = LimitOffsetPagination
@@ -157,7 +156,7 @@ class CommentViewSet(ModelViewSet):
 
 
 class ReviewViewSet(ModelViewSet):
-    """Вьюсет для отзывов"""
+    """Вьюсет для отзывов."""
     serializer_class = ReviewSerializer
     permission_classes = (IsAuthorOrModerOrAdmin,)
     pagination_class = LimitOffsetPagination

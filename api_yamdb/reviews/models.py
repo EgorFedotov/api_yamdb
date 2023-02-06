@@ -10,24 +10,23 @@ class User(AbstractUser):
     ADMIN = 'admin'
     MODERATOR = 'moderator'
     USER = 'user'
-    ROLES = [
+    ROLES = (
         (ADMIN, 'Administrator'),
         (MODERATOR, 'Moderator'),
         (USER, 'User'),
-    ]
+    )
 
     username = models.CharField(
         verbose_name='Имя пользователя',
         validators=(validate_username,),
         max_length=150,
-        null=True,
         unique=True
     )
 
     email = models.EmailField(
         verbose_name='Адрес электронной почты',
         max_length=254,
-        unique=True,
+        unique=True
     )
 
     first_name = models.TextField(
@@ -41,7 +40,7 @@ class User(AbstractUser):
         verbose_name='Фамилия',
         max_length=150,
         null=True,
-        blank=True
+        blank=True,
     )
 
     bio = models.TextField(
@@ -69,10 +68,7 @@ class User(AbstractUser):
     def is_user(self):
         return self.role == self.USER
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
-
-    class Meta:
+    class Meta(AbstractUser.Meta):
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
         constraints = [
@@ -96,11 +92,13 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
+    '''Модель жанра.'''
     name = models.CharField('Название', max_length=256)
     slug = models.SlugField(unique=True, max_length=50)
 
 
 class Title(models.Model):
+    '''Модель заголовка.'''
     name = models.CharField('Название', max_length=256)
     year = models.PositiveSmallIntegerField(
         validators=[
@@ -108,7 +106,7 @@ class Title(models.Model):
             MinValueValidator(600, 'Минимальное значение 600'),
         ],
     )
-    #rating = TODO: review.score
+    # rating = TODO: review.score
     rating = models.IntegerField(
         verbose_name='Рейтинг',
         null=True,
@@ -129,6 +127,7 @@ class Title(models.Model):
 
 
 class GenreTitle(models.Model):
+    '''Связанная модель жанра и заголовка.'''
     genre = models.ForeignKey(
         Genre,
         null=True,
@@ -176,6 +175,15 @@ class Review(models.Model):
             MinValueValidator(1, 'Оценка не может быть меньше 1'),
         ],
     )
+
+    class Meta:
+        ordering = ('-pub_date',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=('title', 'author',),
+                name='unique_title_author'
+            )
+        ]
 
     def __str__(self):
         return f'Отзыв {self.text} оставлен на {self.title}'
