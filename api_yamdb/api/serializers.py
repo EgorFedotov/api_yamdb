@@ -28,13 +28,32 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class TitleSerializer(serializers.ModelSerializer):
     '''Сериализатор для title.'''
-    genres = GenreSerializer(many=True)
-    category = CategorySerializer(many=False)
+    #genres = GenreSerializer(many=True)
+    #category = CategorySerializer(many=False)
+    genres = serializers.SlugRelatedField(
+        slug_field='slug', many=True, queryset=Genre.objects.all()
+    )
+    category = serializers.SlugRelatedField(
+        slug_field='slug', queryset=Category.objects.all()
+    )
 
     def validate_year(self, year) -> int:
         if 600 < year < 2100:
             return year
         raise serializers.ValidationError("year not valid value")
+
+    class Meta:
+        model = Title
+        fields = '__all__'
+
+
+class ListRetrieveTitleSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели title (list, retrieve)"""
+    rating = serializers.IntegerField(
+        source='reviews__score__avg', read_only=True
+    )
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
 
     class Meta:
         model = Title

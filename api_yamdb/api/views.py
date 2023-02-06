@@ -2,6 +2,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404
+from django.db.models import Avg
 
 from rest_framework import permissions, status, filters
 from rest_framework.viewsets import ModelViewSet
@@ -20,9 +21,11 @@ from .serializers import (CategorySerializer,
                           RegisterDataSerializer,
                           TokenSerializer,
                           UserSerializer,
+                          ListRetrieveTitleSerializer,
                           CommentsSerializer,
                           ReviewSerializer,
-                          UserEditSerializer)
+                          UserEditSerializer,
+                          )
 
 
 from .mixins import AdminControlSlugViewSet
@@ -121,12 +124,18 @@ class GenreViewSet(AdminControlSlugViewSet):
 
 
 class TitleViewSet(ModelViewSet):
-    serializer_class = TitleSerializer
     queryset = (
-        Title.objects.all()
+        Title.objects.all().annotate(Avg('reviews__score')).order_by('name')
     )
+
     permission_classes = (AdminOrReadOnly,)
     pagination_class = LimitOffsetPagination
+
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return ListRetrieveTitleSerializer
+        return TitleSerializer
 
 
 class CommentViewSet(ModelViewSet):
