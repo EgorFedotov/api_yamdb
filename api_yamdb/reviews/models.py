@@ -83,7 +83,7 @@ class User(AbstractUser):
 
 
 class Category(models.Model):
-    """Катерогии произведений."""
+    '''Катерогии произведений.'''
     name = models.CharField('Название', max_length=256)
     slug = models.SlugField(unique=True, max_length=50)
 
@@ -96,9 +96,12 @@ class Genre(models.Model):
     name = models.CharField('Название', max_length=256)
     slug = models.SlugField(unique=True, max_length=50)
 
+    def __str__(self):
+        return self.name
+
 
 class Title(models.Model):
-    '''Модель заголовка.'''
+    '''Модель произведения.'''
     name = models.CharField('Название', max_length=256)
     year = models.PositiveSmallIntegerField(
         validators=[
@@ -106,7 +109,6 @@ class Title(models.Model):
             MinValueValidator(600, 'Минимальное значение 600'),
         ],
     )
-    # rating = TODO: review.score
     rating = models.IntegerField(
         verbose_name='Рейтинг',
         null=True,
@@ -122,7 +124,7 @@ class Title(models.Model):
     genre = models.ManyToManyField(
         Genre,
         through='GenreTitle',
-        verbose_name='Жанр'
+        verbose_name='Жанры'
     )
 
 
@@ -150,7 +152,7 @@ class GenreTitle(models.Model):
 
 
 class Review(models.Model):
-    """Модель отзыва."""
+    '''Модель отзыва.'''
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -190,7 +192,7 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
-    """Модель комментария."""
+    '''Модель комментария.'''
     text = models.TextField(
         verbose_name='текст комментария',
         help_text='введите текст комментария',

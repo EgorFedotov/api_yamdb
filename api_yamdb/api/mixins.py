@@ -1,4 +1,4 @@
-from rest_framework import mixins, filters
+from rest_framework import filters, mixins
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.pagination import LimitOffsetPagination
 
@@ -15,7 +15,7 @@ class ListCreateDestroyViewSet(mixins.CreateModelMixin,
 class AdminControlSlugViewSet(ListCreateDestroyViewSet):
     '''Общий родительский класс для категорий и жанров.'''
     filter_backends = [filters.SearchFilter]
-    search_fields = ['=name', ]
+    search_fields = ('=name', )
     lookup_field = 'slug'
     permission_classes = (AdminCreateDeleteOrReadOnly,)
     pagination_class = LimitOffsetPagination
