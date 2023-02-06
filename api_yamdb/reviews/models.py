@@ -92,11 +92,13 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
+    '''Модель жанра.'''
     name = models.CharField('Название', max_length=256)
     slug = models.SlugField(unique=True, max_length=50)
 
 
 class Title(models.Model):
+    '''Модель заголовка.'''
     name = models.CharField('Название', max_length=256)
     year = models.PositiveSmallIntegerField(
         validators=[
@@ -104,7 +106,7 @@ class Title(models.Model):
             MinValueValidator(600, 'Минимальное значение 600'),
         ],
     )
-    #rating = TODO: review.score
+    # rating = TODO: review.score
     rating = models.IntegerField(
         verbose_name='Рейтинг',
         null=True,
@@ -125,6 +127,7 @@ class Title(models.Model):
 
 
 class GenreTitle(models.Model):
+    '''Связанная модель жанра и заголовка.'''
     genre = models.ForeignKey(
         Genre,
         null=True,

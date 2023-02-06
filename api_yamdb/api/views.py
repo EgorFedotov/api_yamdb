@@ -139,7 +139,7 @@ class TitleViewSet(ModelViewSet):
 
 
 class CommentViewSet(ModelViewSet):
-    """Вьюсет для комментариев"""
+    """Вьюсет для комментариев."""
     serializer_class = CommentsSerializer
     permission_classes = (IsAuthorOrModerOrAdmin,)
     pagination_class = LimitOffsetPagination
@@ -156,7 +156,7 @@ class CommentViewSet(ModelViewSet):
 
 
 class ReviewViewSet(ModelViewSet):
-    """Вьюсет для отзывов"""
+    """Вьюсет для отзывов."""
     serializer_class = ReviewSerializer
     permission_classes = (IsAuthorOrModerOrAdmin,)
     pagination_class = LimitOffsetPagination

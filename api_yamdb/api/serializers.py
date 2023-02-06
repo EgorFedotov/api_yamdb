@@ -48,7 +48,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class ListRetrieveTitleSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели title (list, retrieve)"""
+    """Сериализатор для модели title (list, retrieve)."""
     rating = serializers.IntegerField(
         source='reviews__score__avg', read_only=True
     )
@@ -61,6 +61,7 @@ class ListRetrieveTitleSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    '''Сериализатор для юзера.'''
 
     class Meta:
         fields = ("username", "email", "first_name",
@@ -69,6 +70,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserEditSerializer(serializers.ModelSerializer):
+    '''Сериализатор для изменения юзера.'''
 
     class Meta:
         fields = ("username", "email", "first_name",
@@ -86,13 +88,13 @@ class RegisterDataSerializer(serializers.ModelSerializer):
 
 
 class TokenSerializer(serializers.Serializer):
-    '''Сериализатор для юзера'''
+    '''Сериализатор для юзера.'''
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
 
 
 class CommentsSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели"""
+    """Сериализатор для модели."""
     author = serializers.SlugRelatedField(
         read_only=True,
         slug_field='username',
@@ -109,7 +111,7 @@ class CommentsSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    """Сериализатор для отзывов"""
+    """Сериализатор для отзывов."""
     author = serializers.SlugRelatedField(
         read_only=True,
         slug_field='username',
