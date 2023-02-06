@@ -15,7 +15,20 @@ class AdminOrReadOnly(permissions.BasePermission):
         return request.user.is_admin
 
 
- 
+class AdminCreateDeleteOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        if request.user.is_authenticated:
+            return request.user.is_admin
+        return False
+
+    def has_object_permission(self, request, view, obj):
+        if request.method == 'DELETE' and request.user.is_admin:
+            return True
+        return False
+
+
 
 class AdminOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
