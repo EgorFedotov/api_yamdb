@@ -31,7 +31,6 @@ from .permissions import AdminOnly, AdminOrReadOnly, IsAuthorOrModerOrAdmin
 
 
 @api_view(["POST"])
-@permission_classes([permissions.AllowAny])
 def register(request):
     '''Регистрация пользователя.'''
     if User.objects.filter(
