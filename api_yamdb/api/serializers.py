@@ -1,6 +1,5 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
 from rest_framework.exceptions import ValidationError
 
 from reviews.models import Category, Genre, Title, User, Review, Comment
@@ -16,7 +15,6 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class GenreSerializer(serializers.ModelSerializer):
     '''Сериализатор для жанра.'''
-
     class Meta:
         model = Genre
         fields = ('name', 'slug',)
@@ -58,17 +56,6 @@ class ListRetrieveTitleSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     '''Сериализатор для юзера.'''
-    username = serializers.CharField(
-        validators=[
-            UniqueValidator(queryset=User.objects.all())
-        ],
-        required=True,
-    )
-    email = serializers.EmailField(
-        validators=[
-            UniqueValidator(queryset=User.objects.all())
-        ]
-    )
 
     class Meta:
         fields = '__all__'
@@ -86,24 +73,9 @@ class UserEditSerializer(serializers.ModelSerializer):
 
 class RegisterDataSerializer(serializers.ModelSerializer):
     '''Сериализатор регистрации.'''
-    username = serializers.CharField(
-        validators=[
-            UniqueValidator(queryset=User.objects.all())
-        ]
-    )
-    email = serializers.EmailField(
-        validators=[
-            UniqueValidator(queryset=User.objects.all())
-        ]
-    )
-
-    def validate_username(self, value):
-        if value.lower() == 'me':
-            raise serializers.ValidationError('Username "me" is not valid')
-        return value
 
     class Meta:
-        fields = '__all__'
+        fields = ('username', 'email')
         model = User
 
 

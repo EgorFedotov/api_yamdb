@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 
+from .validators import validate_username
+
 
 class User(AbstractUser):
     '''Модель юзера.'''
@@ -16,6 +18,7 @@ class User(AbstractUser):
 
     username = models.CharField(
         verbose_name='Имя пользователя',
+        validators=(validate_username,),
         max_length=150,
         null=True,
         unique=True
@@ -28,11 +31,17 @@ class User(AbstractUser):
     )
 
     first_name = models.TextField(
+        verbose_name='Имя',
         max_length=150,
+        null=True,
+        blank=True
     )
 
     last_name = models.TextField(
+        verbose_name='Фамилия',
         max_length=150,
+        null=True,
+        blank=True
     )
 
     bio = models.TextField(
@@ -43,7 +52,7 @@ class User(AbstractUser):
 
     role = models.CharField(
         verbose_name='Роль',
-        max_length=50,
+        max_length=150,
         choices=ROLES,
         default=USER
     )
@@ -56,19 +65,25 @@ class User(AbstractUser):
     def is_admin(self):
         return self.role == self.ADMIN
 
+    @property
+    def is_user(self):
+        return self.role == self.USER
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-
         constraints = [
-            models.CheckConstraint(
-                check=~models.Q(username__iexact="me"),
-                name="username_is_not_me"
+            models.UniqueConstraint(
+                fields=['username', 'email'],
+                name='unique_username_email'
             )
         ]
+
+    def __str__(self):
+        return self.username
 
 
 class Category(models.Model):
