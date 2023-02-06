@@ -23,16 +23,15 @@ router_v1.register(f'{V1_PATH}titles', TitleViewSet)
 router_v1.register(f'{V1_PATH}users', UserViewSet)
 
 router_v1. register(
-    r'titles/(?P<title_id>\d+)/(?P<review_id>\d+)/comments',
+    f'{V1_PATH}titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
     CommentViewSet,
     basename='comments',
 )
 
 router_v1.register(
-    r'titles/(?P<title_id>\d+)/reviews',
+    f'{V1_PATH}titles/(?P<title_id>\d+)/reviews',
     ReviewViewSet,
     basename='reviews')
-
 
 urlpatterns = [
     path('', include(router_v1.urls)),

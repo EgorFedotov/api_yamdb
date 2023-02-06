@@ -20,9 +20,11 @@ from .serializers import (CategorySerializer,
                           RegisterDataSerializer,
                           TokenSerializer,
                           UserSerializer,
+                          ListRetrieveTitleSerializer,
                           CommentsSerializer,
                           ReviewSerializer,
-                          UserEditSerializer)
+                          UserEditSerializer,
+                          )
 
 
 from .mixins import AdminControlSlugViewSet
@@ -122,12 +124,18 @@ class GenreViewSet(AdminControlSlugViewSet):
 
 
 class TitleViewSet(ModelViewSet):
-    serializer_class = TitleSerializer
     queryset = (
-        Title.objects.all()
+        Title.objects.all().annotate(Avg('reviews__score')).order_by('name')
     )
+
     permission_classes = (AdminOrReadOnly,)
     pagination_class = LimitOffsetPagination
+
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return ListRetrieveTitleSerializer
+        return TitleSerializer
 
 
 class CommentViewSet(ModelViewSet):

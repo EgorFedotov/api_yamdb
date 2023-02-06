@@ -29,6 +29,7 @@ class AdminCreateDeleteOrReadOnly(permissions.BasePermission):
         return False
 
 
+
 class AdminOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.user.is_authenticated:
@@ -43,6 +44,7 @@ class AdminOnly(permissions.BasePermission):
                     or request.user.is_staff is True
                     or request.user.is_superuser is True)
         return False
+
 
 
 class IsAuthorOrModerOrAdmin(permissions.BasePermission):

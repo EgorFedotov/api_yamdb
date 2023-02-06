@@ -108,13 +108,23 @@ class Title(models.Model):
             MinValueValidator(600, 'Минимальное значение 600'),
         ],
     )
-    # rating = TODO: review.score
+    #rating = TODO: review.score
+    rating = models.IntegerField(
+        verbose_name='Рейтинг',
+        null=True,
+        default=None
+    )
     description = models.TextField()
     category = models.ForeignKey(
         Category,
         null=True,
         on_delete=models.SET_NULL,
         related_name='titles',
+    )
+    genre = models.ManyToManyField(
+        Genre,
+        through='GenreTitle',
+        verbose_name='Жанр'
     )
 
 
