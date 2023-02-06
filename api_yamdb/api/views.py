@@ -80,8 +80,10 @@ def get_jwt_token(request):
 
 class UserViewSet(ModelViewSet):
     '''Вьюсет для юзера.'''
+    lookup_field = ('username')
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    filter_backends = (filters.SearchFilter,)
     permission_classes = (AdminOnly,)
     http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
@@ -96,20 +98,15 @@ class UserViewSet(ModelViewSet):
         serializer_class=UserEditSerializer,
     )
     def users_own_profile(self, request):
-        user = request.user
-        if request.method == 'GET':
-            serializer = self.get_serializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        if request.method == 'PATCH':
-            serializer = self.get_serializer(
-                user,
-                data=request.data,
-                partial=True
-            )
-            serializer.is_valid(raise_exception=True)
+        serializer = self.get_serializer(
+            request.user,
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        if request.method == "PATCH":
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CategoryViewSet(ListCreateDestroyViewSet):
