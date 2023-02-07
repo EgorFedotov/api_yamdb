@@ -31,11 +31,6 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class TitleSerializer(serializers.ModelSerializer):
     '''Сериализатор для title.'''
-<<<<<<< HEAD
-=======
-    # genres = GenreSerializer(many=True)
-    # category = CategorySerializer(many=False)
->>>>>>> develop
     genre = serializers.SlugRelatedField(
         slug_field='slug', many=True, queryset=Genre.objects.all()
     )
