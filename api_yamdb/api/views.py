@@ -1,21 +1,20 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.db.models import Avg
 from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404
-from django.db.models import Avg
 
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import permissions, status, filters
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.exceptions import ValidationError
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.pagination import LimitOffsetPagination
-
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from reviews.models import Category, Genre, Title, User, Review
+from reviews.models import Category, Genre, Review, Title, User
 
 from .serializers import (CategorySerializer,
                           GenreSerializer,
@@ -143,7 +142,7 @@ class TitleViewSet(ModelViewSet):
 
 
 class CommentViewSet(ModelViewSet):
-    """Вьюсет для комментариев."""
+    '''Вьюсет для комментариев.'''
     serializer_class = CommentsSerializer
     permission_classes = (IsAuthorOrModerOrAdmin,)
     pagination_class = LimitOffsetPagination
@@ -160,7 +159,7 @@ class CommentViewSet(ModelViewSet):
 
 
 class ReviewViewSet(ModelViewSet):
-    """Вьюсет для отзывов."""
+    '''Вьюсет для отзывов.'''
     serializer_class = ReviewSerializer
     permission_classes = (IsAuthorOrModerOrAdmin,)
     pagination_class = LimitOffsetPagination

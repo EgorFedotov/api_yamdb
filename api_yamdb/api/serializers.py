@@ -1,8 +1,11 @@
+import datetime as dt
+
 from django.shortcuts import get_object_or_404
+
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from reviews.models import Category, Genre, Title, User, Review, Comment
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
 class MetaSlug:
@@ -28,8 +31,6 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class TitleSerializer(serializers.ModelSerializer):
     '''Сериализатор для title.'''
-    # genres = GenreSerializer(many=True)
-    # category = CategorySerializer(many=False)
     genre = serializers.SlugRelatedField(
         slug_field='slug', many=True, queryset=Genre.objects.all()
     )
@@ -37,10 +38,10 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='slug', queryset=Category.objects.all()
     )
 
-    def validate_year(self, year) -> int:
-        if 600 < year < 2100:
-            return year
-        raise serializers.ValidationError("year not valid value")
+    def validate_year(self, year: int) -> int:
+        if dt.datetime.now().year < year:
+            raise serializers.ValidationError("year not valid value")
+        return year
 
     class Meta:
         model = Title
@@ -48,7 +49,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class ListRetrieveTitleSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели title (list, retrieve)."""
+    '''Сериализатор для модели title (list, retrieve).'''
     rating = serializers.IntegerField(
         source='reviews__score__avg', read_only=True
     )
@@ -94,7 +95,7 @@ class TokenSerializer(serializers.Serializer):
 
 
 class CommentsSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели."""
+    '''Сериализатор для модели.'''
     author = serializers.SlugRelatedField(
         read_only=True,
         slug_field='username',
@@ -111,7 +112,7 @@ class CommentsSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    """Сериализатор для отзывов."""
+    '''Сериализатор для отзывов.'''
     author = serializers.SlugRelatedField(
         read_only=True,
         slug_field='username',
