@@ -82,38 +82,29 @@ class User(AbstractUser):
         return self.username
 
 
-class Category(models.Model):
+class CommonGroupModel(models.Model):
+    '''Общий родетельский класс для наследования.'''
+    name = models.CharField('Название', max_length=256)
+    slug = models.SlugField(unique=True, max_length=50)
+
+    def __str__(self):
+        return self.name
+
+
+class Category(CommonGroupModel):
     '''Катерогии произведений.'''
-    name = models.CharField('Название', max_length=256)
-    slug = models.SlugField(unique=True, max_length=50)
-
-    def __str__(self):
-        return self.name
+    pass
 
 
-class Genre(models.Model):
+class Genre(CommonGroupModel):
     '''Модель жанра.'''
-    name = models.CharField('Название', max_length=256)
-    slug = models.SlugField(unique=True, max_length=50)
-
-    def __str__(self):
-        return self.name
+    pass
 
 
 class Title(models.Model):
     '''Модель произведения.'''
     name = models.CharField('Название', max_length=256)
-    year = models.PositiveSmallIntegerField(
-        validators=[
-            MaxValueValidator(2100, 'Год еще не наступил'),
-            MinValueValidator(600, 'Минимальное значение 600'),
-        ],
-    )
-    rating = models.IntegerField(
-        verbose_name='Рейтинг',
-        null=True,
-        default=None
-    )
+    year = models.PositiveSmallIntegerField()
     description = models.TextField()
     category = models.ForeignKey(
         Category,
