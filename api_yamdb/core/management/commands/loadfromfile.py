@@ -3,6 +3,7 @@ import os
 
 from typing import Any, List
 
+from django.db import IntegrityError
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
@@ -30,28 +31,39 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """Load data from csv files to database."""
+        cerr = self.stderr.write
+        cout = self.stdout.write
+
         for filename, model in model_by_filename.items():
             filename += '.csv'
             path = os.path.join(settings.STATIC_DATA, filename)
+            try:
+                with open(path, encoding='utf-8') as csvfile:
+                    reader = csv.DictReader(csvfile, delimiter=',')
+                    keys = reader.fieldnames
+                    Command.add_suffix_for_related(model, keys)
+                    update, error = False, False
+                    for row in reader:
+                        object, created = model.objects.update_or_create(**row)
+                        if not object:
+                            error = True
+                        elif not created:
+                            update = True
+            except IntegrityError:
+                cerr(self.style.ERROR(
+                    f'Not load {model.__name__}.'
+                    'Integrity error. Ensure order of loading files '
+                    'or succesful previously models load')
+                )
+                continue
 
-            with open(path, encoding='utf-8') as csvfile:
-                reader = csv.reader(csvfile, delimiter=',')
-                keys = next(reader)
-                Command.add_suffix_for_related(model, keys)
-                update, error = False, False
-                for row in reader:
-                    kwargs = {key: column for key, column in zip(keys, row)}
-                    object, created = model.objects.update_or_create(**kwargs)
-                    if not object:
-                        error = True
-                    elif not created:
-                        update = True
+            except FileNotFoundError:
+                cerr(self.style.ERROR(f'Not load. File {path} not found.'))
+                continue
 
-                cout = self.stdout.write
-                cerr = self.stderr.write
-                if error:
-                    cerr(self.style.ERROR(f'Not load {model.__name__}'))
-                elif update:
-                    cout(self.style.SUCCESS(f'Update {model.__name__}'))
-                else:
-                    cout(self.style.SUCCESS(f'Created {model.__name__}'))
+            if error:
+                cerr(self.style.ERROR(f'Not load {model.__name__}'))
+            elif update:
+                cout(self.style.SUCCESS(f'Update {model.__name__}'))
+            else:
+                cout(self.style.SUCCESS(f'Created {model.__name__}'))
