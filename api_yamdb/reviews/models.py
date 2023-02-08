@@ -147,6 +147,7 @@ class GenreTitle(models.Model):
 
 
 class ReviewCommentBase(models.Model):
+    """Базовая модель для Review/Comment"""
     pub_date = models.DateTimeField(
         auto_now_add=True
     )
