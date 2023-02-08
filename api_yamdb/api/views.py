@@ -29,7 +29,7 @@ from .mixins import AdminControlSlugViewSet
 from .permissions import AdminOnly, AdminOrReadOnly, IsAuthorOrModerOrAdmin
 
 
-@api_view(["POST"])
+@api_view(['POST'])
 def register(request):
     '''Регистрация пользователя.'''
     if User.objects.filter(
@@ -47,8 +47,8 @@ def register(request):
         raise ValidationError('Неверное имя пользователя или email')
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
-        subject="YaMDb registration",
-        message=f"Your confirmation code: {confirmation_code}",
+        subject='YaMDb registration',
+        message=f'Your confirmation code: {confirmation_code}',
         from_email=None,
         recipient_list=[user.email],
     )

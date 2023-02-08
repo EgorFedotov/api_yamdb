@@ -60,11 +60,11 @@ class User(AbstractUser):
 
     @property
     def is_moderator(self):
-        return self.role == self.MODERATOR
+        return self.is_staff or self.role == self.MODERATOR
 
     @property
     def is_admin(self):
-        return self.role == self.ADMIN
+        return  self.is_superuser or self.role == self.ADMIN
 
 
     class Meta(AbstractUser.Meta):
