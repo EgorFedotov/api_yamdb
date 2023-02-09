@@ -1,8 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.contrib.auth.validators import UnicodeUsernameValidator
 
 from .validators import validate_username
+from api_yamdb.settings import LENGHT_USER_FIELD
 
 
 class User(AbstractUser):
@@ -18,8 +20,8 @@ class User(AbstractUser):
 
     username = models.CharField(
         verbose_name='Имя пользователя',
-        validators=(validate_username,),
-        max_length=150,
+        validators=(validate_username, UnicodeUsernameValidator()),
+        max_length=LENGHT_USER_FIELD,
         unique=True
     )
 
@@ -31,14 +33,14 @@ class User(AbstractUser):
 
     first_name = models.TextField(
         verbose_name='Имя',
-        max_length=150,
+        max_length=LENGHT_USER_FIELD,
         null=True,
         blank=True
     )
 
     last_name = models.TextField(
         verbose_name='Фамилия',
-        max_length=150,
+        max_length=LENGHT_USER_FIELD,
         null=True,
         blank=True,
     )
@@ -51,22 +53,19 @@ class User(AbstractUser):
 
     role = models.CharField(
         verbose_name='Роль',
-        max_length=150,
+        max_length=LENGHT_USER_FIELD,
         choices=ROLES,
         default=USER
     )
 
     @property
     def is_moderator(self):
-        return self.role == self.MODERATOR
+        return self.is_staff or self.role == self.MODERATOR
 
     @property
     def is_admin(self):
-        return self.role == self.ADMIN
+        return  self.is_superuser or self.role == self.ADMIN
 
-    @property
-    def is_user(self):
-        return self.role == self.USER
 
     class Meta(AbstractUser.Meta):
         verbose_name = 'Пользователь'
@@ -75,6 +74,10 @@ class User(AbstractUser):
             models.UniqueConstraint(
                 fields=['username', 'email'],
                 name='unique_username_email'
+            ),
+            models.CheckConstraint(
+                check=~models.Q(username__iexact="me"),
+                name="username_is_not_me"
             )
         ]
 

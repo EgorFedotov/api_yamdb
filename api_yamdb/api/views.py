@@ -3,9 +3,7 @@ from django.core.mail import send_mail
 from django.db.models import Avg
 from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404
-
 from django_filters.rest_framework import DjangoFilterBackend
-
 from rest_framework import permissions, status, filters
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.exceptions import ValidationError
@@ -15,7 +13,6 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
 from reviews.models import Category, Genre, Review, Title, User
-
 from .serializers import (CategorySerializer,
                           GenreSerializer,
                           TitleSerializer,
@@ -32,7 +29,7 @@ from .mixins import AdminControlSlugViewSet
 from .permissions import AdminOnly, AdminOrReadOnly, IsAuthorOrModerOrAdmin
 
 
-@api_view(["POST"])
+@api_view(['POST'])
 def register(request):
     '''Регистрация пользователя.'''
     if User.objects.filter(
@@ -50,8 +47,8 @@ def register(request):
         raise ValidationError('Неверное имя пользователя или email')
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
-        subject="YaMDb registration",
-        message=f"Your confirmation code: {confirmation_code}",
+        subject='YaMDb registration',
+        message=f'Your confirmation code: {confirmation_code}',
         from_email=None,
         recipient_list=[user.email],
     )
