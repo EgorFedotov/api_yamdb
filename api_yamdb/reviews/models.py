@@ -142,7 +142,15 @@ class GenreTitle(models.Model):
         ]
 
 
-class Review(models.Model):
+class ReviewCommentBase(models.Model):
+    """Базовая модель для Review/Comment"""
+    pub_date = models.DateTimeField(
+        auto_now_add=True
+    )
+    text = models.TextField()
+
+
+class Review(ReviewCommentBase):
     '''Модель отзыва.'''
     title = models.ForeignKey(
         Title,
@@ -155,13 +163,7 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='reviews'
     )
-    pub_date = models.DateTimeField(
-        auto_now_add=True
-    )
-    text = models.TextField(
-
-    )
-    score = models.IntegerField(
+    score = models.PositiveSmallIntegerField(
         default=0,
         validators=[
             MaxValueValidator(10, 'Оценка не может быть выше 10'),
@@ -182,16 +184,8 @@ class Review(models.Model):
         return f'Отзыв {self.text} оставлен на {self.title}'
 
 
-class Comment(models.Model):
+class Comment(ReviewCommentBase):
     '''Модель комментария.'''
-    text = models.TextField(
-        verbose_name='текст комментария',
-        help_text='введите текст комментария',
-    )
-    pub_date = models.DateTimeField(
-        verbose_name='Дата публикации',
-        auto_now_add=True,
-    )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
