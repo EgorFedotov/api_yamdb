@@ -64,8 +64,7 @@ class User(AbstractUser):
 
     @property
     def is_admin(self):
-        return  self.is_superuser or self.role == self.ADMIN
-
+        return self.is_superuser or self.role == self.ADMIN
 
     class Meta(AbstractUser.Meta):
         verbose_name = 'Пользователь'
