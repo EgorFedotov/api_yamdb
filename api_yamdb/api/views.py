@@ -88,7 +88,7 @@ class UserViewSet(ModelViewSet):
     def users_own_profile(self, request):
         serializer = self.get_serializer(
             request.user,
-            data=request.data,
+            data=request.data if request.method != "GET" else {},
             partial=True
         )
         serializer.is_valid(raise_exception=True)
