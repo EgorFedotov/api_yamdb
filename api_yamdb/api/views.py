@@ -33,26 +33,18 @@ from .serializers import (CategorySerializer,
 @api_view(['POST'])
 def register(request):
     '''Регистрация пользователя.'''
-    if User.objects.filter(
-        username=request.data.get('username'),
-        email=request.data.get('email')
-    ).exists():
-        return Response(request.data, status=status.HTTP_200_OK)
     serializer = RegisterDataSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    try:
-        user, create = User.objects.get_or_create(
-            **serializer.validated_data
+    user, create = User.objects.get_or_create(
+        **serializer.validated_data)
+    if create:
+        confirmation_code = default_token_generator.make_token(user)
+        send_mail(
+            subject='YaMDb registration',
+            message=f'Your confirmation code: {confirmation_code}',
+            from_email=None,
+            recipient_list=[user.email],
         )
-    except IntegrityError:
-        raise ValidationError('Неверное имя пользователя или email')
-    confirmation_code = default_token_generator.make_token(user)
-    send_mail(
-        subject='YaMDb registration',
-        message=f'Your confirmation code: {confirmation_code}',
-        from_email=None,
-        recipient_list=[user.email],
-    )
 
     return Response(serializer.data, status=status.HTTP_200_OK)
 

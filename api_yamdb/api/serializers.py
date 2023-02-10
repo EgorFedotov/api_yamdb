@@ -6,6 +6,12 @@ from rest_framework.exceptions import ValidationError
 
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
+from django.contrib.auth.validators import UnicodeUsernameValidator
+
+from api_yamdb.settings import LENGHT_USER_FIELD
+
+from reviews.validators import validate_username
+
 
 class MetaSlug:
     '''Общий мета класс для поиска по slug.'''
@@ -79,8 +85,28 @@ class UserEditSerializer(serializers.ModelSerializer):
         read_only_fields = ('role',)
 
 
-class RegisterDataSerializer(serializers.ModelSerializer):
+class RegisterDataSerializer(serializers.Serializer):
     '''Сериализатор регистрации.'''
+    username = serializers.CharField(
+        max_length=LENGHT_USER_FIELD,
+    )
+
+    email = serializers.EmailField(
+        max_length=254,
+    )
+
+    def validate(self, attrs):
+        name = attrs['username']
+        validate_username(name)
+        validator = UnicodeUsernameValidator()
+        validator(name)
+        email = attrs['email']
+        records = User.objects.filter(email=email) | User.objects.filter(username=name)
+        for r in records:
+            if r.username == name and r.email == email:
+                break
+            raise ValidationError()
+        return attrs
 
     class Meta:
         fields = ("username", "email")
