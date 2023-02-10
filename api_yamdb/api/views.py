@@ -1,60 +1,47 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models import Avg
-from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404
-
 from django_filters.rest_framework import DjangoFilterBackend
 
-from rest_framework import permissions, status, filters
-from rest_framework.decorators import api_view, permission_classes, action
-from rest_framework.exceptions import ValidationError
-from rest_framework.viewsets import ModelViewSet
+from rest_framework import filters, permissions, status
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
 from reviews.models import Category, Genre, Review, Title, User
 
-from .serializers import (CategorySerializer,
-                          GenreSerializer,
-                          TitleSerializer,
-                          RegisterDataSerializer,
-                          TokenSerializer,
-                          UserSerializer,
-                          ListRetrieveTitleSerializer,
-                          CommentsSerializer,
-                          ReviewSerializer,
-                          UserEditSerializer,
-                          )
 from .filters import TitleFilter
 from .mixins import AdminControlSlugViewSet
 from .permissions import AdminOnly, AdminOrReadOnly, IsAuthorOrModerOrAdmin
+from .serializers import (CategorySerializer,
+                          CommentsSerializer,
+                          GenreSerializer,
+                          ListRetrieveTitleSerializer,
+                          RegisterDataSerializer,
+                          ReviewSerializer,
+                          TitleSerializer,
+                          TokenSerializer,
+                          UserSerializer)
 
 
-@api_view(["POST"])
+@api_view(['POST'])
 def register(request):
     '''Регистрация пользователя.'''
-    if User.objects.filter(
-        username=request.data.get('username'),
-        email=request.data.get('email')
-    ).exists():
-        return Response(request.data, status=status.HTTP_200_OK)
     serializer = RegisterDataSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    try:
-        user, create = User.objects.get_or_create(
-            **serializer.validated_data
+    user, create = User.objects.get_or_create(
+        **serializer.validated_data)
+    if create:
+        confirmation_code = default_token_generator.make_token(user)
+        send_mail(
+            subject='YaMDb registration',
+            message=f'Your confirmation code: {confirmation_code}',
+            from_email=None,
+            recipient_list=[user.email],
         )
-    except IntegrityError:
-        raise ValidationError('Неверное имя пользователя или email')
-    confirmation_code = default_token_generator.make_token(user)
-    send_mail(
-        subject="YaMDb registration",
-        message=f"Your confirmation code: {confirmation_code}",
-        from_email=None,
-        recipient_list=[user.email],
-    )
 
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -97,17 +84,16 @@ class UserViewSet(ModelViewSet):
         detail=False,
         url_path='me',
         permission_classes=[permissions.IsAuthenticated],
-        serializer_class=UserEditSerializer,
     )
     def users_own_profile(self, request):
         serializer = self.get_serializer(
             request.user,
-            data=request.data,
+            data=request.data if request.method != "GET" else {},
             partial=True
         )
         serializer.is_valid(raise_exception=True)
         if request.method == "PATCH":
-            serializer.save()
+            serializer.save(role=request.user.role)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
