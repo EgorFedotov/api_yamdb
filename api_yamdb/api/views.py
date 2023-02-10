@@ -24,7 +24,6 @@ from .serializers import (CategorySerializer,
                           ReviewSerializer,
                           TitleSerializer,
                           TokenSerializer,
-                          UserEditSerializer,
                           UserSerializer)
 
 
