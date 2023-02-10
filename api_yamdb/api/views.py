@@ -85,7 +85,6 @@ class UserViewSet(ModelViewSet):
         detail=False,
         url_path='me',
         permission_classes=[permissions.IsAuthenticated],
-        serializer_class=UserEditSerializer,
     )
     def users_own_profile(self, request):
         serializer = self.get_serializer(
@@ -95,7 +94,7 @@ class UserViewSet(ModelViewSet):
         )
         serializer.is_valid(raise_exception=True)
         if request.method == "PATCH":
-            serializer.save()
+            serializer.save(role=request.user.role)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

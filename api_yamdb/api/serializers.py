@@ -3,6 +3,8 @@ import datetime as dt
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.validators import UniqueValidator
+from django.contrib.auth.validators import UnicodeUsernameValidator
 
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
@@ -73,16 +75,6 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ("username", "email", "first_name",
                   "last_name", "bio", "role")
         model = User
-
-
-class UserEditSerializer(serializers.ModelSerializer):
-    '''Сериализатор для изменения юзера.'''
-
-    class Meta:
-        fields = ("username", "email", "first_name",
-                  "last_name", "bio", "role")
-        model = User
-        read_only_fields = ('role',)
 
 
 class RegisterDataSerializer(serializers.Serializer):
