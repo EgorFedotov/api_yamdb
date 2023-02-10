@@ -101,7 +101,8 @@ class RegisterDataSerializer(serializers.Serializer):
         validator = UnicodeUsernameValidator()
         validator(name)
         email = attrs['email']
-        records = User.objects.filter(email=email) | User.objects.filter(username=name)
+        records = (User.objects.filter(email=email)
+                   | User.objects.filter(username=name))
         for r in records:
             if r.username == name and r.email == email:
                 break
