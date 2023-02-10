@@ -1,6 +1,6 @@
 from rest_framework import filters, mixins
-from rest_framework.viewsets import GenericViewSet
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.viewsets import GenericViewSet
 
 from .permissions import AdminCreateDeleteOrReadOnly
 

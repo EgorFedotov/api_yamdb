@@ -1,6 +1,10 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+
+from api_yamdb.settings import LENGHT_USER_FIELD
+from reviews.validators import validate_username
 
 from .validators import validate_username
 
@@ -18,8 +22,8 @@ class User(AbstractUser):
 
     username = models.CharField(
         verbose_name='Имя пользователя',
-        validators=(validate_username,),
-        max_length=150,
+        validators=(validate_username, UnicodeUsernameValidator()),
+        max_length=LENGHT_USER_FIELD,
         unique=True
     )
 
@@ -31,14 +35,14 @@ class User(AbstractUser):
 
     first_name = models.TextField(
         verbose_name='Имя',
-        max_length=150,
+        max_length=LENGHT_USER_FIELD,
         null=True,
         blank=True
     )
 
     last_name = models.TextField(
         verbose_name='Фамилия',
-        max_length=150,
+        max_length=LENGHT_USER_FIELD,
         null=True,
         blank=True,
     )
@@ -51,22 +55,18 @@ class User(AbstractUser):
 
     role = models.CharField(
         verbose_name='Роль',
-        max_length=150,
+        max_length=LENGHT_USER_FIELD,
         choices=ROLES,
         default=USER
     )
 
     @property
     def is_moderator(self):
-        return self.role == self.MODERATOR
+        return self.is_staff or self.role == self.MODERATOR
 
     @property
     def is_admin(self):
-        return self.role == self.ADMIN
-
-    @property
-    def is_user(self):
-        return self.role == self.USER
+        return self.is_superuser or self.role == self.ADMIN
 
     class Meta(AbstractUser.Meta):
         verbose_name = 'Пользователь'
@@ -75,6 +75,10 @@ class User(AbstractUser):
             models.UniqueConstraint(
                 fields=['username', 'email'],
                 name='unique_username_email'
+            ),
+            models.CheckConstraint(
+                check=~models.Q(username__iexact="me"),
+                name="username_is_not_me"
             )
         ]
 
@@ -82,33 +86,29 @@ class User(AbstractUser):
         return self.username
 
 
-class Category(models.Model):
+class CommonGroupModel(models.Model):
+    '''Общий родетельский класс для наследования.'''
+    name = models.CharField('Название', max_length=256)
+    slug = models.SlugField(unique=True, max_length=50)
+
+    def __str__(self):
+        return self.name
+
+
+class Category(CommonGroupModel):
     '''Катерогии произведений.'''
-    name = models.CharField('Название', max_length=256)
-    slug = models.SlugField(unique=True, max_length=50)
-
-    def __str__(self):
-        return self.name
+    pass
 
 
-class Genre(models.Model):
+class Genre(CommonGroupModel):
     '''Модель жанра.'''
-    name = models.CharField('Название', max_length=256)
-    slug = models.SlugField(unique=True, max_length=50)
-
-    def __str__(self):
-        return self.name
+    pass
 
 
 class Title(models.Model):
     '''Модель произведения.'''
     name = models.CharField('Название', max_length=256)
-    year = models.PositiveSmallIntegerField(
-        validators=[
-            MaxValueValidator(2100, 'Год еще не наступил'),
-            MinValueValidator(600, 'Минимальное значение 600'),
-        ],
-    )
+    year = models.PositiveSmallIntegerField()
     description = models.TextField()
     category = models.ForeignKey(
         Category,
@@ -146,16 +146,12 @@ class GenreTitle(models.Model):
         ]
 
 
-class ReviewCommentBase(models.Model):
-    """Базовая модель для Review/Comment"""
+class Review(models.Model):
+    '''Модель отзыва.'''
     pub_date = models.DateTimeField(
         auto_now_add=True
     )
     text = models.TextField()
-
-
-class Review(ReviewCommentBase):
-    '''Модель отзыва.'''
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -188,8 +184,12 @@ class Review(ReviewCommentBase):
         return f'Отзыв {self.text} оставлен на {self.title}'
 
 
-class Comment(ReviewCommentBase):
+class Comment(models.Model):
     '''Модель комментария.'''
+    pub_date = models.DateTimeField(
+        auto_now_add=True
+    )
+    text = models.TextField()
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
