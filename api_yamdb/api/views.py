@@ -22,7 +22,6 @@ from .serializers import (CategorySerializer,
                           ListRetrieveTitleSerializer,
                           CommentsSerializer,
                           ReviewSerializer,
-                          UserEditSerializer,
                           )
 from .filters import TitleFilter
 from .mixins import AdminControlSlugViewSet
@@ -32,7 +31,7 @@ from .permissions import AdminOnly, AdminOrReadOnly, IsAuthorOrModerOrAdmin
 @api_view(['POST'])
 def register(request):
     '''Регистрация пользователя.'''
-    if User.objects.filter(
+    if User.objects.get_or_create(
         username=request.data.get('username'),
         email=request.data.get('email')
     ).exists():
@@ -94,7 +93,6 @@ class UserViewSet(ModelViewSet):
         detail=False,
         url_path='me',
         permission_classes=[permissions.IsAuthenticated],
-        serializer_class=UserEditSerializer,
     )
     def users_own_profile(self, request):
         serializer = self.get_serializer(
@@ -104,7 +102,7 @@ class UserViewSet(ModelViewSet):
         )
         serializer.is_valid(raise_exception=True)
         if request.method == "PATCH":
-            serializer.save()
+            serializer.save(role=request.user.role)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

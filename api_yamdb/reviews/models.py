@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.validators import UnicodeUsernameValidator
 
-from .validators import validate_username
+from reviews.validators import validate_username
 from api_yamdb.settings import LENGHT_USER_FIELD
 
 
