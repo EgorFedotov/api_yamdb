@@ -32,16 +32,19 @@ def register(request):
     '''Регистрация пользователя.'''
     serializer = RegisterDataSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    user, create = User.objects.get_or_create(
-        **serializer.validated_data)
-    if create:
-        confirmation_code = default_token_generator.make_token(user)
-        send_mail(
-            subject='YaMDb registration',
-            message=f'Your confirmation code: {confirmation_code}',
-            from_email=None,
-            recipient_list=[user.email],
+    try:
+        user, create = User.objects.get_or_create(
+            **serializer.validated_data
         )
+    except IntegrityError:
+        raise ValidationError("Неверное имя пользователя или email")
+    confirmation_code = default_token_generator.make_token(user)
+    send_mail(
+        subject='YaMDb registration',
+        message=f'Your confirmation code: {confirmation_code}',
+        from_email=None,
+        recipient_list=[user.email],
+    )
 
     return Response(serializer.data, status=status.HTTP_200_OK)
 

@@ -2,10 +2,9 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.conf import settings
 
-from api_yamdb.settings import LENGHT_USER_FIELD
 from reviews.validators import validate_username
-
 from .validators import validate_username
 
 
@@ -23,7 +22,7 @@ class User(AbstractUser):
     username = models.CharField(
         verbose_name='Имя пользователя',
         validators=(validate_username, UnicodeUsernameValidator()),
-        max_length=LENGHT_USER_FIELD,
+        max_length=settings.LENGHT_USER_FIELD,
         unique=True
     )
 
@@ -35,14 +34,14 @@ class User(AbstractUser):
 
     first_name = models.TextField(
         verbose_name='Имя',
-        max_length=LENGHT_USER_FIELD,
+        max_length=settings.LENGHT_USER_FIELD,
         null=True,
         blank=True
     )
 
     last_name = models.TextField(
         verbose_name='Фамилия',
-        max_length=LENGHT_USER_FIELD,
+        max_length=settings.LENGHT_USER_FIELD,
         null=True,
         blank=True,
     )
@@ -55,7 +54,7 @@ class User(AbstractUser):
 
     role = models.CharField(
         verbose_name='Роль',
-        max_length=LENGHT_USER_FIELD,
+        max_length=settings.LENGHT_USER_FIELD,
         choices=ROLES,
         default=USER
     )
