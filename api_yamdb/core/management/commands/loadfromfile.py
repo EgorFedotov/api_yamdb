@@ -71,7 +71,9 @@ class Command(BaseCommand):
                 continue
 
             except FileNotFoundError:
-                error_stream(self.style.ERROR(f'Not load. File {path} not found.'))
+                error_stream(self.style.ERROR(
+                    f'Not load. File {path} not found.')
+                )
                 continue
 
             if error:

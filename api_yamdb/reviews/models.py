@@ -1,12 +1,13 @@
+import datetime as dt
+
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from api_yamdb.settings import LENGHT_USER_FIELD
 from reviews.validators import validate_username
-
-from .validators import validate_username
 
 
 class User(AbstractUser):
@@ -23,7 +24,7 @@ class User(AbstractUser):
     username = models.CharField(
         verbose_name='Имя пользователя',
         validators=(validate_username, UnicodeUsernameValidator()),
-        max_length=LENGHT_USER_FIELD,
+        max_length=settings.LENGHT_USER_FIELD,
         unique=True
     )
 
@@ -35,14 +36,14 @@ class User(AbstractUser):
 
     first_name = models.TextField(
         verbose_name='Имя',
-        max_length=LENGHT_USER_FIELD,
+        max_length=settings.LENGHT_USER_FIELD,
         null=True,
         blank=True
     )
 
     last_name = models.TextField(
         verbose_name='Фамилия',
-        max_length=LENGHT_USER_FIELD,
+        max_length=settings.LENGHT_USER_FIELD,
         null=True,
         blank=True,
     )
@@ -55,7 +56,7 @@ class User(AbstractUser):
 
     role = models.CharField(
         verbose_name='Роль',
-        max_length=LENGHT_USER_FIELD,
+        max_length=settings.LENGHT_USER_FIELD,
         choices=ROLES,
         default=USER
     )
@@ -107,8 +108,16 @@ class Genre(CommonGroupModel):
 
 class Title(models.Model):
     '''Модель произведения.'''
+
+    @staticmethod
+    def validate_year(year: int) -> None:
+        if dt.datetime.now().year < year:
+            raise ValidationError("year not valid value")
+
     name = models.CharField('Название', max_length=256)
-    year = models.PositiveSmallIntegerField()
+    year = models.PositiveSmallIntegerField(
+        validators=[validate_year.__func__]
+    )
     description = models.TextField()
     category = models.ForeignKey(
         Category,
@@ -118,32 +127,8 @@ class Title(models.Model):
     )
     genre = models.ManyToManyField(
         Genre,
-        through='GenreTitle',
         verbose_name='Жанры'
     )
-
-
-class GenreTitle(models.Model):
-    '''Связанная модель жанра и заголовка.'''
-    genre = models.ForeignKey(
-        Genre,
-        null=True,
-        related_name='titles',
-        on_delete=models.SET_NULL
-    )
-
-    title = models.ForeignKey(
-        Title,
-        null=True,
-        related_name='genres',
-        on_delete=models.SET_NULL
-    )
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=('genre', 'title'),
-                                    name='constraint_pair')
-        ]
 
 
 class Review(models.Model):

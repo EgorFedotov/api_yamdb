@@ -1,5 +1,4 @@
-import datetime as dt
-
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
@@ -42,8 +41,10 @@ class TitleSerializer(serializers.ModelSerializer):
     )
 
     def validate_year(self, year: int) -> int:
-        if dt.datetime.now().year < year:
-            raise serializers.ValidationError("year not valid value")
+        try:
+            Title.validate_year(year)
+        except DjangoValidationError:
+            raise ValidationError()
         return year
 
     class Meta:
