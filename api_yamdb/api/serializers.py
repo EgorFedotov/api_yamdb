@@ -1,13 +1,15 @@
-from django.core.exceptions import ValidationError as DjangoValidationError
+import datetime as dt
+
+from django.conf import settings
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.shortcuts import get_object_or_404
+
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from reviews.models import Category, Comment, Genre, Review, Title, User
 from reviews.validators import validate_username
-
-from api_yamdb.settings import LENGHT_USER_FIELD
 
 
 class MetaSlug:
@@ -77,7 +79,7 @@ class UserSerializer(serializers.ModelSerializer):
 class RegisterDataSerializer(serializers.Serializer):
     '''Сериализатор регистрации.'''
     username = serializers.CharField(
-        max_length=LENGHT_USER_FIELD,
+        max_length=settings.LENGHT_USER_FIELD,
     )
 
     email = serializers.EmailField(
@@ -92,15 +94,11 @@ class RegisterDataSerializer(serializers.Serializer):
         email = attrs['email']
         records = (User.objects.filter(email=email)
                    | User.objects.filter(username=name))
-        for r in records:
-            if r.username == name and r.email == email:
+        for record in records:
+            if record.username == name and record.email == email:
                 break
             raise ValidationError()
         return attrs
-
-    class Meta:
-        fields = ("username", "email")
-        model = User
 
 
 class TokenSerializer(serializers.Serializer):
