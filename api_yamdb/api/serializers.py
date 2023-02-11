@@ -1,14 +1,14 @@
-import datetime as dt
-
+from django.conf import settings
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.shortcuts import get_object_or_404
+from rest_framework.validators import UniqueValidator
+
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from reviews.models import Category, Comment, Genre, Review, Title, User
 from reviews.validators import validate_username
-
-from api_yamdb.settings import LENGHT_USER_FIELD
 
 
 class MetaSlug:
@@ -42,8 +42,10 @@ class TitleSerializer(serializers.ModelSerializer):
     )
 
     def validate_year(self, year: int) -> int:
-        if dt.datetime.now().year < year:
-            raise serializers.ValidationError("year not valid value")
+        try:
+            Title.validate_year(year)
+        except DjangoValidationError:
+            raise ValidationError()
         return year
 
     class Meta:
@@ -76,30 +78,27 @@ class UserSerializer(serializers.ModelSerializer):
 class RegisterDataSerializer(serializers.Serializer):
     '''Сериализатор регистрации.'''
     username = serializers.CharField(
-        max_length=LENGHT_USER_FIELD,
+        max_length=settings.LENGHT_USER_FIELD,
+        validators=[UnicodeUsernameValidator()]
     )
 
     email = serializers.EmailField(
         max_length=254,
     )
 
-    def validate(self, attrs):
-        name = attrs['username']
-        validate_username(name)
-        validator = UnicodeUsernameValidator()
-        validator(name)
-        email = attrs['email']
-        records = (User.objects.filter(email=email)
-                   | User.objects.filter(username=name))
-        for r in records:
-            if r.username == name and r.email == email:
-                break
-            raise ValidationError()
-        return attrs
-
-    class Meta:
-        fields = ("username", "email")
-        model = User
+    def validate(self, data):
+        user = User.objects.filter(
+            username=data.get('username')
+        )
+        email = User.objects.filter(
+            email=data.get('email')
+        )
+        validator = UnicodeUsernameValidator(data['username'])
+        if not user.exists() and email.exists():
+            raise ValidationError("Недопустимый Email и username")
+        if user.exists() and user.get().email != data.get('email'):
+            raise ValidationError("Недопустимый Email")
+        return data
 
 
 class TokenSerializer(serializers.Serializer):

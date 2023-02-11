@@ -6,7 +6,21 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 
-from ._settings import model_by_filename
+from reviews.models import (Category,
+                            Comment,
+                            Genre,
+                            Review,
+                            Title,
+                            User)
+
+model_by_filename = [
+    ('category', Category),
+    ('genre', Genre),
+    ('titles', Title),
+    ('users', User),
+    ('review', Review),
+    ('comments', Comment),
+]
 
 
 class Command(BaseCommand):
@@ -22,18 +36,18 @@ class Command(BaseCommand):
     def add_suffix_for_related(model: Any, keys: List[str]) -> None:
         """Add id suffix for all related fields."""
         instance = model()
-        for i, field_name in enumerate(keys):
+        for count, field_name in enumerate(keys):
             if 'id' in field_name:
                 continue
             if Command.is_related(instance, field_name):
-                keys[i] += "_id"
+                keys[count] += "_id"
 
     def handle(self, *args, **options):
         """Load data from csv files to database."""
-        cerr = self.stderr.write
-        cout = self.stdout.write
+        error_stream = self.stderr.write
+        output_stream = self.stdout.write
 
-        for filename, model in model_by_filename.items():
+        for filename, model in model_by_filename:
             filename += '.csv'
             path = os.path.join(settings.STATIC_DATA, filename)
             try:
@@ -49,7 +63,7 @@ class Command(BaseCommand):
                         elif not created:
                             update = True
             except IntegrityError:
-                cerr(self.style.ERROR(
+                error_stream(self.style.ERROR(
                     f'Not load {model.__name__}.'
                     'Integrity error. Ensure order of loading files '
                     'or succesful previously models load')
@@ -57,12 +71,14 @@ class Command(BaseCommand):
                 continue
 
             except FileNotFoundError:
-                cerr(self.style.ERROR(f'Not load. File {path} not found.'))
+                error_stream(self.style.ERROR(
+                    f'Not load. File {path} not found.')
+                )
                 continue
 
             if error:
-                cerr(self.style.ERROR(f'Not load {model.__name__}'))
+                error_stream(self.style.ERROR(f'Not load {model.__name__}'))
             elif update:
-                cout(self.style.SUCCESS(f'Update {model.__name__}'))
+                output_stream(self.style.SUCCESS(f'Update {model.__name__}'))
             else:
-                cout(self.style.SUCCESS(f'Created {model.__name__}'))
+                output_stream(self.style.SUCCESS(f'Created {model.__name__}'))
