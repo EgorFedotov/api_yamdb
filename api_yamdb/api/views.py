@@ -96,11 +96,11 @@ class UserViewSet(ModelViewSet):
             partial=True
         )
         if request.method == "GET":
+            serializer.is_valid(raise_exception=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         serializer.is_valid(raise_exception=True)
         serializer.save(role=request.user.role)
-        return Response(status=status.HTTP_200_OK)
-
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class CategoryViewSet(AdminControlSlugViewSet):
     '''Набор для категорий.'''
