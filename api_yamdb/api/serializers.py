@@ -1,5 +1,3 @@
-import datetime as dt
-
 from django.conf import settings
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.exceptions import ValidationError as DjangoValidationError
