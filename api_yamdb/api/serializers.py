@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.shortcuts import get_object_or_404
+from rest_framework.validators import UniqueValidator
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -78,25 +79,26 @@ class RegisterDataSerializer(serializers.Serializer):
     '''Сериализатор регистрации.'''
     username = serializers.CharField(
         max_length=settings.LENGHT_USER_FIELD,
+        validators=[UnicodeUsernameValidator()]
     )
 
     email = serializers.EmailField(
         max_length=254,
     )
 
-    def validate(self, attrs):
-        name = attrs['username']
-        validate_username(name)
-        validator = UnicodeUsernameValidator()
-        validator(name)
-        email = attrs['email']
-        records = (User.objects.filter(email=email)
-                   | User.objects.filter(username=name))
-        for record in records:
-            if record.username == name and record.email == email:
-                break
-            raise ValidationError()
-        return attrs
+    def validate(self, data):
+        user = User.objects.filter(
+            username=data.get('username')
+        )
+        email = User.objects.filter(
+            email=data.get('email')
+        )
+        validator = UnicodeUsernameValidator(data['username'])
+        if not user.exists() and email.exists():
+            raise ValidationError("Недопустимый Email и username")
+        if user.exists() and user.get().email != data.get('email'):
+            raise ValidationError("Недопустимый Email")
+        return data
 
 
 class TokenSerializer(serializers.Serializer):
