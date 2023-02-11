@@ -102,6 +102,7 @@ class UserViewSet(ModelViewSet):
         serializer.save(role=request.user.role)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class CategoryViewSet(AdminControlSlugViewSet):
     '''Набор для категорий.'''
     queryset = Category.objects.all()
