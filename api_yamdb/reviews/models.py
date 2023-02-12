@@ -109,14 +109,13 @@ class Genre(CommonGroupModel):
 class Title(models.Model):
     '''Модель произведения.'''
 
-    @staticmethod
     def validate_year(year: int) -> None:
         if dt.datetime.now().year < year:
             raise ValidationError("year not valid value")
 
     name = models.CharField('Название', max_length=256)
     year = models.PositiveSmallIntegerField(
-        validators=[validate_year.__func__]
+        validators=[validate_year]
     )
     description = models.TextField()
     category = models.ForeignKey(

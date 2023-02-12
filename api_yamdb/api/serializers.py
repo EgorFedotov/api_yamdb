@@ -7,7 +7,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from reviews.models import Category, Comment, Genre, Review, Title, User
-
+from reviews.validators import validate_username
 
 class MetaSlug:
     '''Общий мета класс для поиска по slug.'''
@@ -43,7 +43,7 @@ class TitleSerializer(serializers.ModelSerializer):
         try:
             Title.validate_year(year)
         except DjangoValidationError:
-            raise ValidationError()
+            raise ValidationError('некорректная дата')
         return year
 
     class Meta:
@@ -77,7 +77,7 @@ class RegisterDataSerializer(serializers.Serializer):
     '''Сериализатор регистрации.'''
     username = serializers.CharField(
         max_length=settings.LENGHT_USER_FIELD,
-        validators=[UnicodeUsernameValidator()]
+        validators=[UnicodeUsernameValidator(), validate_username]
     )
 
     email = serializers.EmailField(
@@ -127,7 +127,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='username',
     )
-    score = serializers.IntegerField(max_value=10, min_value=1)
 
     def validate(self, data):
         request = self.context['request']
