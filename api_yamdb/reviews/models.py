@@ -96,7 +96,7 @@ class CommonGroupModel(models.Model):
         return self.name
 
     class Meta:
-        abstract=True
+        abstract = True
 
 
 class Category(CommonGroupModel):

@@ -9,6 +9,7 @@ from rest_framework.exceptions import ValidationError
 from reviews.models import Category, Comment, Genre, Review, Title, User
 from reviews.validators import validate_username
 
+
 class MetaSlug:
     '''Общий мета класс для поиска по slug.'''
     fields = ('name', 'slug',)
@@ -43,7 +44,7 @@ class TitleSerializer(serializers.ModelSerializer):
         try:
             Title.validate_year(year)
         except DjangoValidationError:
-            raise ValidationError('некорректная дата')
+            raise ValidationError()
         return year
 
     class Meta:
@@ -77,25 +78,24 @@ class RegisterDataSerializer(serializers.Serializer):
     '''Сериализатор регистрации.'''
     username = serializers.CharField(
         max_length=settings.LENGHT_USER_FIELD,
-        validators=[UnicodeUsernameValidator(), validate_username]
+        validators=(UnicodeUsernameValidator(),)
     )
-
     email = serializers.EmailField(
         max_length=254,
     )
 
-    def validate(self, data):
-        user = User.objects.filter(
-            username=data.get('username')
-        )
-        email = User.objects.filter(
-            email=data.get('email')
-        )
-        if not user.exists() and email.exists():
-            raise ValidationError("Недопустимый Email и username")
-        if user.exists() and user.get().email != data.get('email'):
-            raise ValidationError("Недопустимый Email")
-        return data
+    def validate(self, attrs):
+        name = attrs.get('username')
+        email_string = attrs.get('email')
+        validate_username(name)
+        user = User.objects.filter(username=name)
+        email = User.objects.filter(email=email_string)
+        new_record = not email.exists() and not user.exists()
+        same_user = user.exists() and user.get().email == email_string
+        not_conflict = same_user or new_record
+        if not_conflict:
+            return attrs
+        raise ValidationError()
 
 
 class TokenSerializer(serializers.Serializer):
@@ -127,6 +127,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='username',
     )
+    score = serializers.IntegerField(max_value=10, min_value=1)
 
     def validate(self, data):
         request = self.context['request']
