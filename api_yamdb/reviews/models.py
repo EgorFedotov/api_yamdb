@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
@@ -111,7 +110,7 @@ class Title(models.Model):
     '''Модель произведения.'''
     name = models.CharField('Название', max_length=256)
     year = models.PositiveSmallIntegerField(
-        validators=[validate_year,]
+        validators=(validate_year, )
     )
     description = models.TextField()
     category = models.ForeignKey(

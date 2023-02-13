@@ -9,6 +9,7 @@ def validate_username(value):
             ('Имя пользователя не может быть <me>.'),
         )
 
+
 def validate_year(year: int) -> None:
     if dt.datetime.now().year < year:
         raise ValidationError("year not valid value")
