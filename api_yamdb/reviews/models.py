@@ -1,5 +1,3 @@
-import datetime as dt
-
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
@@ -7,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from reviews.validators import validate_username
+from reviews.validators import validate_username, validate_year
 
 
 class User(AbstractUser):
@@ -111,14 +109,9 @@ class Genre(CommonGroupModel):
 
 class Title(models.Model):
     '''Модель произведения.'''
-
-    def validate_year(year: int) -> None:
-        if dt.datetime.now().year < year:
-            raise ValidationError("year not valid value")
-
     name = models.CharField('Название', max_length=256)
     year = models.PositiveSmallIntegerField(
-        validators=[validate_year]
+        validators=[validate_year,]
     )
     description = models.TextField()
     category = models.ForeignKey(
